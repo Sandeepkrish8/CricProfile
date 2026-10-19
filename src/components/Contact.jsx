@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import DrsReview from './DrsReview';
 import Icon from './Icon';
 import Reveal from './Reveal';
 import SectionHead from './SectionHead';
@@ -23,6 +24,13 @@ function Ticker({ items, total }) {
 
 export default function Contact({ profile, ticker, section }) {
   const [copied, setCopied] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
+  const reviewButton = useRef(null);
+
+  const closeReview = () => {
+    setReviewing(false);
+    reviewButton.current?.focus(); // give focus back to the button that opened it
+  };
 
   useEffect(() => {
     if (!copied) return;
@@ -58,6 +66,9 @@ export default function Contact({ profile, ticker, section }) {
         <a className="btn btn--gold" href={`mailto:${profile.email}`}>
           Send a review request <Icon name="arrowRight" size={16} />
         </a>
+        <button ref={reviewButton} type="button" className="btn btn--line-light" onClick={() => setReviewing(true)}>
+          Review the decision · DRS
+        </button>
         <a href={profile.github} target="_blank" rel="noreferrer">GitHub ↗</a>
         <a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a>
         <a href={profile.leetcode} target="_blank" rel="noreferrer">LeetCode ↗</a>
@@ -68,6 +79,7 @@ export default function Contact({ profile, ticker, section }) {
         <span>Stumps. Built with React &amp; Vite.</span>
       </footer>
       <Ticker items={ticker} total={`${profile.year}/0`} />
+      {reviewing && <DrsReview email={profile.email} onClose={closeReview} />}
     </section>
   );
 }

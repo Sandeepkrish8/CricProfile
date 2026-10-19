@@ -29,10 +29,13 @@ Photo: `public/profile.jpg` · Résumé: `public/resume.pdf`.
 | Afternoon | Projects — match tickets | Tickets slide in and the stubs snap on; hover to start tearing the stub off |
 | Evening | Career — Manhattan | One block per milestone, dropping into place year by year, plus the "fall of years" |
 | Under lights | Awards | Floodlights flicker on lamp by lamp; Player of the Match card with a sheen; count-up stats |
-| Under lights | Contact | Copy-email button and a scrolling broadcast ticker |
+| Under lights | Awards — the crowd | The stands light up and a Mexican wave rolls through; fireworks over the honours card |
+| Under lights | The Nets (mini-game) | Face an over: swing when the timing needle hits gold for a SIX, too late and you're bowled. Best over is saved |
+| Under lights | Contact | Copy-email button, a scrolling broadcast ticker, and a **DRS review** — ball tracking that ends with "OUT! Decision: hire Sandeep" |
 
 Also: a cricket-ball cursor that spins with your speed, scroll progress shown as **overs** (0.0 → 6.0),
-and stumps dividers that get bowled as you scroll past.
+stumps dividers that get bowled as you scroll past, a **sky dial** where the sun sets and the moon rises
+as you scroll, **live ball-by-ball commentary** that narrates the visit, and **fireworks** on every SIX.
 
 No animation libraries — just React hooks, SVG and CSS.
 

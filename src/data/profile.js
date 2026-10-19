@@ -226,3 +226,18 @@ export const ticker = [
   'Published · IRJMETS 2025',
   'Next match: your team',
 ];
+
+/**
+ * Ball-by-ball commentary: one line the first time each section is reached.
+ * result: '•' (dot) | '1' | '2' | '4' | '6' | 'W'
+ */
+export const commentary = {
+  home: { result: '•', title: 'Watchful start', text: 'Morning session under way at Chennai. The coin landed heads.' },
+  about: { result: '1', title: 'Quick single to cover', text: 'The scoreboard rolls to 2026/0. Still not out.' },
+  skills: { result: '4', title: 'FOUR, through mid-wicket', text: '32 skills on the wagon wheel. Frontend lighting up in gold.' },
+  projects: { result: '6', title: 'SIX! Lofted over long-off', text: 'Five fixtures in the crowd — all sold out.' },
+  career: { result: '2', title: 'Two, worked off the pads', text: 'From BCA in 2020 to four projects in 2026.' },
+  awards: { result: '4', title: 'FOUR, under lights', text: 'Player of the match: 1st prize at the Acciojob hackathon.' },
+  nets: { result: '•', title: 'Into the nets', text: 'The visitor picks up a bat. Can they clear the rope?' },
+  contact: { result: 'W', title: 'Big appeal!', text: 'Up goes the finger? Review the decision to find out.' },
+};

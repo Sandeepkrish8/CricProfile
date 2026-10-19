@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { emit, EVENTS } from '../lib/events';
 import { prefersReducedMotion } from '../utils/motion';
 
 // Geometry of the 800 × 760 SVG ground.
@@ -62,6 +63,8 @@ export default function Ground({ sections }) {
       return;
     }
 
+    // Measure now: React clears event.currentTarget once this handler returns.
+    const fielderRect = event.currentTarget.getBoundingClientRect();
     const target = { x: section.x, y: section.y };
     const control = controlPoint(target);
     const distance = Math.hypot(target.x - STRIKER.x, target.y - STRIKER.y);
@@ -85,6 +88,15 @@ export default function Ground({ sections }) {
         return;
       }
       setShot((s) => s && { ...s, landed: true });
+      emit(EVENTS.commentary, {
+        result: call === 'SIX!' ? '6' : '4',
+        title: `${call} Played to ${section.position.toLowerCase()}`,
+        text: `Straight into ${section.label}.`,
+        href: `#${section.id}`,
+      });
+      if (call === 'SIX!') {
+        emit(EVENTS.fireworks, { x: fielderRect.left + fielderRect.width / 2, y: fielderRect.top });
+      }
       timers.current.push(
         setTimeout(() => goTo(section.id), 650),
         setTimeout(() => setShot(null), 1500)

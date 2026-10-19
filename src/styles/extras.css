@@ -1,0 +1,858 @@
+/* =========================================================================
+   Extras layered on top of the main design: fireworks, the sky dial,
+   live commentary, the DRS review, the nets game and the crowd.
+   ========================================================================= */
+
+.btn--line-light {
+  border: 1.5px solid rgba(245, 247, 255, 0.5);
+  color: var(--flood);
+}
+
+.btn--line-light::before {
+  background: var(--flood);
+}
+
+.btn--line-light:hover:not(:disabled) {
+  color: var(--night);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---------- Fireworks canvas ---------- */
+.fireworks {
+  position: fixed;
+  inset: 0;
+  z-index: 350; /* over the page and the review dialog, under the cursor */
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---------- Sky dial (sun → moon) ---------- */
+.sky {
+  position: fixed;
+  top: 76px;
+  right: max(12px, calc(var(--gutter) - 8px));
+  z-index: 280;
+  width: 96px;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px -14px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* On phones the top corner holds page text, so the sky sits bottom-left. */
+@media (max-width: 639px) {
+  .sky {
+    top: auto;
+    right: auto;
+    bottom: 16px;
+    left: 12px;
+    width: 64px;
+  }
+  .live__latest {
+    max-width: 44vw;
+  }
+}
+
+.sky svg {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+}
+
+.sky__arc {
+  fill: none;
+  stroke: rgba(20, 32, 23, 0.25);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+.sky.is-night .sky__arc {
+  stroke: rgba(255, 255, 255, 0.2);
+}
+
+.sky__halo { fill: rgba(255, 210, 94, 0.35); }
+.sky__disc { fill: #ffd25e; }
+.sky__moon-disc { fill: #e9eefc; }
+.sky__grass { fill: var(--grass); }
+
+.sky__sun,
+.sky__moon {
+  transition: opacity 0.6s;
+}
+
+.sky__stars circle,
+.sky__lights circle {
+  fill: #fff;
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+
+.sky.is-night .sky__stars circle {
+  opacity: 0.9;
+  animation: twinkle 2.4s ease-in-out infinite;
+}
+
+.sky__stars circle:nth-child(2) { animation-delay: -0.6s; }
+.sky__stars circle:nth-child(3) { animation-delay: -1.2s; }
+.sky__stars circle:nth-child(4) { animation-delay: -1.8s; }
+
+@keyframes twinkle {
+  50% { opacity: 0.2; }
+}
+
+.sky.is-night .sky__lights circle {
+  opacity: 1;
+  filter: drop-shadow(0 0 2px #fff);
+}
+
+/* ---------- Live commentary ---------- */
+.live {
+  position: fixed;
+  right: max(12px, var(--gutter));
+  bottom: 16px;
+  z-index: 280;
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+  max-width: min(440px, calc(100vw - 24px));
+  font-family: var(--font-body);
+}
+
+.live__pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 7px 14px 7px 10px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--chalk);
+  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.6);
+  font-size: 0.82rem;
+  animation: pill-in 0.6s var(--ease);
+}
+
+@keyframes pill-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+.live__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5a4f;
+  animation: blink 1.4s steps(2) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.2; }
+}
+
+.live__tag {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.live__latest {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+}
+
+.is-typing::after {
+  content: '▍';
+  color: var(--gold);
+}
+
+.live__res {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e9e1cb;
+  color: var(--ink);
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.live__res--4 { background: var(--teal); }
+.live__res--6 { background: var(--gold); }
+.live__res--W { background: var(--red); color: #fff; }
+
+.live__panel {
+  width: min(440px, calc(100vw - 24px));
+  max-height: min(60vh, 520px);
+  overflow-y: auto;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.55);
+  animation: panel-in 0.4s var(--ease);
+  transform-origin: bottom right;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+}
+
+.live__head {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ink);
+  font-family: var(--font-cond);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.live__ball {
+  display: grid;
+  grid-template-columns: 40px 28px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px dotted var(--line);
+  animation: row-in 0.5s var(--ease) both;
+}
+
+.live__ball .live__res {
+  width: 26px;
+  height: 26px;
+}
+
+.live__over {
+  padding-top: 3px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.live__text {
+  display: grid;
+  font-size: 0.85rem;
+}
+
+.live__text a,
+.live__text b {
+  font-weight: 700;
+}
+
+.live__text a:hover {
+  color: var(--red);
+}
+
+.live__text span {
+  color: var(--ink-soft);
+}
+
+/* ---------- DRS review dialog ---------- */
+.drs {
+  position: fixed;
+  inset: 0;
+  z-index: 320;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(3, 7, 20, 0.75);
+  backdrop-filter: blur(4px);
+  animation: fade-in 0.3s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+.drs__screen {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: 18px 20px 22px;
+  border-radius: 16px;
+  background: radial-gradient(ellipse at 50% 120%, #1e5a35, #0b1a2a 70%);
+  border: 1px solid rgba(255, 194, 61, 0.35);
+  color: var(--flood);
+  animation: screen-in 0.5s var(--ease);
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.drs__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.drs__close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 247, 255, 0.3);
+  color: var(--flood);
+}
+
+.drs__question {
+  margin: 6px 0 12px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.5rem, 4.4vw, 2.2rem);
+  line-height: 1.05;
+}
+
+.drs__question em {
+  font-weight: 500;
+  color: var(--gold);
+}
+
+.drs__stage {
+  position: relative;
+}
+
+.drs__pitch {
+  display: block;
+  width: 100%;
+  max-height: 52vh;
+}
+
+.drs__crease { stroke: #fff; stroke-width: 2; }
+
+.drs__zone {
+  fill: rgba(42, 209, 174, 0.12);
+  stroke: var(--teal);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 5;
+  opacity: 0;
+  transition: opacity 0.4s 0.4s;
+}
+
+.drs__dot,
+.drs__ring {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.drs__dot {
+  fill: #ff4b3e;
+  opacity: 0;
+  animation: dot-in 0.25s ease forwards;
+  animation-delay: calc(0.2s + var(--i) * 0.22s);
+}
+
+@keyframes dot-in {
+  from { opacity: 0; transform: scale(0); }
+  to { opacity: 1; }
+}
+
+.drs__ring {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  opacity: 0;
+}
+
+.drs--tracking .drs__ring {
+  animation: ring 0.6s var(--ease) 1.3s forwards;
+}
+
+@keyframes ring {
+  from { opacity: 0; transform: scale(2); }
+  to { opacity: 1; transform: none; }
+}
+
+.drs__path,
+.drs__projection {
+  fill: none;
+  stroke-width: 14;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 420;
+  stroke-dashoffset: 420;
+  opacity: 0.9;
+}
+
+.drs__path { stroke: #ff4b3e; }
+.drs__projection { stroke: #5aa3ff; }
+
+.drs--projection .drs__path,
+.drs--verdict .drs__path {
+  animation: draw 0.9s ease forwards;
+}
+
+.drs--projection .drs__projection,
+.drs--verdict .drs__projection {
+  animation: draw 0.7s ease 0.9s forwards;
+}
+
+.drs--projection .drs__zone,
+.drs--verdict .drs__zone {
+  opacity: 1;
+}
+
+.drs--projection .drs__ring,
+.drs--verdict .drs__ring,
+.drs--projection .drs__dot,
+.drs--verdict .drs__dot {
+  opacity: 0.35;
+  animation: none;
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+.drs__stumps rect { fill: #f3e2b8; }
+.drs__bails { fill: #c8b085 !important; }
+
+.drs--verdict .drs__stumps {
+  animation: hit 0.4s ease;
+  transform-box: fill-box;
+  transform-origin: bottom center;
+}
+
+@keyframes hit {
+  30% { transform: rotate(6deg); }
+  60% { transform: rotate(-3deg); }
+}
+
+.drs__hud {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  display: grid;
+  gap: 6px;
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.drs__hud li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 190px;
+  padding: 5px 10px;
+  border-left: 4px solid var(--teal);
+  background: rgba(0, 0, 0, 0.65);
+  animation: hud-in 0.4s var(--ease) both;
+  animation-delay: calc(var(--i) * 0.45s);
+}
+
+.drs__hud li.is-red {
+  border-color: #ff4b3e;
+}
+
+@keyframes hud-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+
+.drs__verdict {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  background: rgba(10, 19, 48, 0.55);
+}
+
+.drs__out {
+  padding: 2px 30px;
+  background: var(--red);
+  color: #fff;
+  font-size: clamp(4rem, 16vw, 7rem);
+  line-height: 0.95;
+  rotate: -4deg;
+  animation: slam 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+.drs__decision {
+  padding: 4px 18px;
+  background: var(--gold);
+  color: var(--night);
+  font-size: clamp(1.3rem, 5vw, 2rem);
+  rotate: -4deg;
+  animation: slam 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) 0.25s both;
+}
+
+@keyframes slam {
+  from {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+.drs__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  min-height: 52px;
+  margin-top: 14px;
+}
+
+.drs__status {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #c6cdeb;
+}
+
+.drs__replay {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- The nets ---------- */
+.nets {
+  background: linear-gradient(var(--night), #0c1838);
+  color: var(--flood);
+}
+
+.nets .eyebrow,
+.nets .head__title em {
+  color: var(--gold);
+}
+
+.nets .head__note {
+  color: #c6cdeb;
+}
+
+.nets__layout {
+  display: grid;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .nets__layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 48px;
+  }
+}
+
+.nets__stage {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.8);
+  touch-action: manipulation;
+}
+
+.nets__stage.is-live {
+  cursor: crosshair;
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.nets__svg {
+  display: block;
+  width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.nets__bg { fill: #0d2414; }
+.nets__mesh line { stroke: rgba(255, 255, 255, 0.05); }
+.nets__pitch { fill: #c9a66b; }
+.nets__crease { stroke: #fff; stroke-width: 2; }
+.nets__ball { fill: var(--red); stroke: #fff; stroke-width: 1.5; }
+.nets__shadow { fill: #000; }
+
+.nets__stump {
+  fill: #f3e2b8;
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  transition: transform 0.4s var(--ease);
+}
+
+.nets__bail {
+  fill: #c8b085;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.nets__stumps.is-hit .nets__stump--l { transform: rotate(-12deg); }
+.nets__stumps.is-hit .nets__stump--r { transform: rotate(14deg); }
+.nets__stumps.is-hit .nets__bail--l { transform: translate(-30px, -50px) rotate(-220deg); }
+.nets__stumps.is-hit .nets__bail--r { transform: translate(34px, -44px) rotate(240deg); }
+
+.nets__bat {
+  fill: #e8d3a6;
+  stroke: #8a6a3a;
+  stroke-width: 1.5;
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  transform: rotate(-35deg);
+  transition: transform 0.18s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.nets__bat.is-swing {
+  transform: rotate(55deg);
+}
+
+.nets__grip { fill: var(--ink); stroke: none; }
+
+.nets__board {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 2px;
+  font-family: var(--font-cond);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.nets__board span {
+  padding: 4px 10px;
+  background: var(--flood);
+  color: var(--night);
+  font-size: 1rem;
+}
+
+.nets__board span:first-child {
+  background: var(--gold);
+  font-size: 1.15rem;
+}
+
+.nets__call {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  margin: 0;
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-style: italic;
+  font-size: clamp(2.2rem, 7vw, 4.4rem);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--flood);
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  animation: call-pop 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+.nets__call--six { color: var(--gold); }
+.nets__call--four { color: var(--teal); }
+.nets__call--bowled { color: #ff8a7a; }
+
+@keyframes call-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px) scale(0.4) rotate(-6deg);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1) rotate(-6deg);
+  }
+}
+
+/* The timing meter: the needle shows how far the ball has travelled. */
+.nets__meter {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+  height: 14px;
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.nets__zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.nets__zone--ok {
+  left: 80%;
+  width: 18%;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.nets__zone--six {
+  left: 86%;
+  width: 8%;
+  background: var(--gold);
+}
+
+.nets__needle {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: 0;
+  width: 4px;
+  margin-left: -2px;
+  background: #fff;
+  box-shadow: 0 0 8px #fff;
+}
+
+.nets__over {
+  display: flex;
+  gap: 8px;
+}
+
+.nets__over li {
+  display: grid;
+  place-items: center;
+  width: clamp(36px, 7vw, 46px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px dashed rgba(245, 247, 255, 0.3);
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.nets__over li[class] {
+  border-style: solid;
+  animation: pop 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+@keyframes pop {
+  from { transform: scale(0.3); }
+}
+
+.nets__over .is-six { background: var(--gold); border-color: var(--gold); color: var(--night); }
+.nets__over .is-four { background: var(--teal); border-color: var(--teal); color: var(--night); }
+.nets__over .is-edge,
+.nets__over .is-miss { background: rgba(245, 247, 255, 0.12); border-color: transparent; }
+.nets__over .is-bowled { background: var(--red); border-color: var(--red); }
+
+.nets__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.nets__stats div {
+  padding: 12px 14px;
+  border-left: 4px solid var(--teal);
+  background: rgba(245, 247, 255, 0.05);
+}
+
+.nets__stats dt {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9aa6d4;
+}
+
+.nets__stats dd {
+  font-family: var(--font-cond);
+  font-weight: 800;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.nets__summary {
+  margin-top: 18px;
+  color: var(--gold);
+}
+
+.nets__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.nets__hint {
+  margin-top: 16px;
+  font-size: 0.88rem;
+  color: #9aa6d4;
+}
+
+/* ---------- The crowd (Mexican wave) ---------- */
+.awards {
+  padding-bottom: calc(clamp(80px, 11vw, 140px) + 60px);
+}
+
+.crowd {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: clamp(70px, 9vw, 120px);
+  pointer-events: none;
+}
+
+.crowd__shirt { fill: #1d2a55; transition: fill 0.6s; }
+.crowd__head { fill: #2a3a6e; transition: fill 0.6s; }
+.crowd__arm { stroke: var(--shirt); stroke-width: 3; stroke-linecap: round; opacity: 0; }
+
+/* Lights on: the crowd lights up in colour, then the wave starts. */
+.lights-on .crowd__shirt { fill: var(--shirt); fill-opacity: 0.55; }
+.lights-on .crowd__head { fill: #c9a98a; fill-opacity: 0.7; }
+
+.lights-on .crowd__body {
+  animation: wave 4.2s ease-in-out infinite;
+  animation-delay: calc(1s + var(--col) * 55ms);
+}
+
+.lights-on .crowd__arm {
+  animation: arms 4.2s ease-in-out infinite;
+  animation-delay: calc(1s + var(--col) * 55ms);
+}
+
+@keyframes wave {
+  0%, 14%, 100% { transform: none; }
+  6% { transform: translateY(-12px); }
+}
+
+@keyframes arms {
+  0%, 14%, 100% { opacity: 0; }
+  4%, 9% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live__dot,
+  .sky.is-night .sky__stars circle {
+    animation: none;
+  }
+}
